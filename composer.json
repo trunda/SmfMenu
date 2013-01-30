@@ -18,9 +18,8 @@
     "require": {
         "php": ">= 5.3.0",
         "nette/nette": "2.0.*",
-        "knplabs/knp-menu": "2.0.*@dev"
+        "knplabs/knp-menu": "2.0.*"
     },
-    "target-dir": "Smf/menu",
     "require-dev": {
         "nette/tester": "@dev"
     }
