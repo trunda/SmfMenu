@@ -1,5 +1,5 @@
 {
-    "name":         "trunda/SmfMenu",
+    "name":         "trunda/smf-menu",
     "description":  "Integrates KnpMenu to Nette framework",
     "type":         "nette-addon",
     "homepage":     "https://github.com/trunda/SmfMenu",
