@@ -1,17 +1,9 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: trunda
- * Date: 29.01.13
- * Time: 16:02
- * To change this template use File | Settings | File Templates.
- */
 
 namespace Smf\Menu\Renderer;
 
 
 use Knp\Menu\ItemInterface;
-use Knp\Menu\Matcher\MatcherInterface;
 use Knp\Menu\Renderer\Renderer;
 use Nette\Application\UI\Control;
 use Nette\Utils\Html;
@@ -20,7 +12,7 @@ use Smf\Menu\Matcher\IMatcher;
 
 class ListRenderer extends Renderer implements IRenderer
 {
-    /** @var \Smf\Menu\Renderer\MatcherInterface */
+    /** @var IMatcher */
     protected $matcher;
     /** @var array */
     protected $defaultOptions;
@@ -29,7 +21,7 @@ class ListRenderer extends Renderer implements IRenderer
 
     /**
      * @param IMatcher $matcher
-     * @param array            $defaultOptions
+     * @param array $defaultOptions
      */
     public function __construct(IMatcher $matcher, array $defaultOptions = array())
     {
@@ -74,7 +66,7 @@ class ListRenderer extends Renderer implements IRenderer
     /**
      * @param \Knp\Menu\ItemInterface $item
      * @param array $options
-     * @return \Nette\Utils\Html|string
+     * @return \Nette\Utils\Html|null
      */
     protected function getMenu(ItemInterface $item, array $options)
     {
@@ -89,12 +81,12 @@ class ListRenderer extends Renderer implements IRenderer
      * @param \Knp\Menu\ItemInterface $item
      * @param $attributes
      * @param $options
-     * @return \Nette\Utils\Html|string
+     * @return \Nette\Utils\Html|null
      */
     protected function getList(ItemInterface $item, $attributes, $options)
     {
         if (!$item->hasChildren() || 0 === $options['depth'] || !$item->getDisplayChildren()) {
-            return '';
+            return null;
         }
 
         $list = Html::el('ul', $attributes);
@@ -117,7 +109,9 @@ class ListRenderer extends Renderer implements IRenderer
 
         $items = array();
         foreach ($item->getChildren() as $child) {
-            $items[] = $this->getItem($child, $options);
+            if (($item = $this->getItem($child, $options)) !== null) {
+                $items[] = $item;
+            }
         }
         return $items;
     }
@@ -125,12 +119,12 @@ class ListRenderer extends Renderer implements IRenderer
     /**
      * @param \Knp\Menu\ItemInterface $item
      * @param array $options
-     * @return \Nette\Utils\Html|string
+     * @return \Nette\Utils\Html|null
      */
     protected function getItem(ItemInterface $item, array $options)
     {
         if (!$item->isDisplayed()) {
-            return '';
+            return null;
         }
 
         // create an array than can be imploded as a class list
@@ -155,8 +149,11 @@ class ListRenderer extends Renderer implements IRenderer
             $attributes['class'] = $class;
         }
 
-        $li = Html::el('li', $attributes)
-            ->add($this->getLink($item, $options));
+        $li = Html::el('li', $attributes);
+
+        if (($link = $this->getLink($item, $options)) !== null) {
+            $li->add($link);
+        }
 
         // renders the embedded ul
         $childrenClass = (array) $item->getChildrenAttribute('class');
@@ -165,7 +162,10 @@ class ListRenderer extends Renderer implements IRenderer
         $childrenAttributes = $item->getChildrenAttributes();
         $childrenAttributes['class'] = $childrenClass;
 
-        return $li->add($this->getList($item, $childrenAttributes, $options));
+        if (($children = $this->getList($item, $childrenAttributes, $options)) !== null) {
+            $li->add($children);
+        }
+        return $li;
     }
 
     /**
@@ -187,12 +187,12 @@ class ListRenderer extends Renderer implements IRenderer
     /**
      * @param \Knp\Menu\ItemInterface $item
      * @param array $options
-     * @return \Nette\Utils\Html|string
+     * @return \Nette\Utils\Html|null
      */
     protected function getLink(ItemInterface $item, array $options)
     {
         if (!$this->getUri($item, $options) && !$item->getLabel()) {
-            return '';
+            return null;
         }
         if ($this->getUri($item, $options)
             && (!$item->isCurrent() || $options['currentAsLink'])
@@ -206,7 +206,7 @@ class ListRenderer extends Renderer implements IRenderer
     /**
      * @param \Knp\Menu\ItemInterface $item
      * @param array $options
-     * @return \Nette\Utils\Html
+     * @return Html
      */
     protected function getSpanElement(ItemInterface $item, array $options)
     {
@@ -217,7 +217,7 @@ class ListRenderer extends Renderer implements IRenderer
     /**
      * @param \Knp\Menu\ItemInterface $item
      * @param array $options
-     * @return mixed
+     * @return Html
      */
     protected function getLinkElement(ItemInterface $item, array $options)
     {

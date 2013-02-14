@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: trunda
- * Date: 29.01.13
- * Time: 16:43
- * To change this template use File | Settings | File Templates.
- */
 
 namespace Smf\Menu\Renderer;
 
@@ -43,7 +36,7 @@ class BootstrapNavRenderer extends ListRenderer
     protected function getMenu(ItemInterface $item, array $options = array())
     {
         $menu = parent::getMenu($item, $options);
-        if (!empty($menu)) {
+        if (!is_null($menu)) {
             $menu->class = (array) $menu->class;
             array_unshift($menu->class, 'nav');
         }
@@ -61,7 +54,7 @@ class BootstrapNavRenderer extends ListRenderer
     {
         $list = parent::getList($item, $attributes, $options);
         // Dropdown
-        if (!empty($list)
+        if (!is_null($list)
             && $this->getRealLevel($item, $options) >= 1
             && $item->hasChildren()
             && $item->getDisplayChildren()) {
@@ -79,7 +72,11 @@ class BootstrapNavRenderer extends ListRenderer
     protected function getItem(ItemInterface $item, array $options)
     {
         $result = parent::getItem($item, $options);
-        if ($options['depth'] !== 0 && $item->hasChildren() && $item->getDisplayChildren()) {
+        if (!is_null($item)
+            && $options['depth'] !== 0
+            && $item->hasChildren()
+            && $item->getDisplayChildren()) {
+
             $result->class = (array) $result->class;
             if ($this->getRealLevel($item, $options) === 1) {
                 $result->class[] = 'dropdown';
@@ -100,10 +97,12 @@ class BootstrapNavRenderer extends ListRenderer
         $link = parent::getLink($item, $options);
 
         // Carret
-        if ($options['depth'] !== 0
+        if (!is_null($link)
+            && $options['depth'] !== 0
             && $this->getRealLevel($item, $options) === 1
             && $item->hasChildren()
             && $item->getDisplayChildren()) {
+
             $link->add('&nbsp;')
                 ->add(Html::el('b', array('class' => 'caret')));
             $link->class = (array) $link->class;
