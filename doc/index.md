@@ -4,9 +4,7 @@ Tato dokumentace ukazuje jednotlivé možnosti, jak používat SmfMenu - menu ji
 
 * **Základní dokumentace**
     * [Instalace do Nette](#instalace)
-    * [Tvoříme první menu](#prnvni-menu)
-    * [Jak menu vykreslit](#vykrslovani)
-* **Pokročilé techniky**
+    * [Jak tvořit menu](#tvorba)
 
 <a name="instalace"></a>
 
@@ -18,7 +16,7 @@ Tato dokumentace ukazuje jednotlivé možnosti, jak používat SmfMenu - menu ji
 Nejprve je potřeba stáhnout zdrojové kódy KnpMenu a SmfMenu. Doporučovaná cesta jak to provést, je pomocí `composeru`.
 Do `composer.json` přidejte následující dva řádky do sekce `require`:
 
-```json
+```
 "trunda/smf-menu": "1.0.*@dev",
 "knplabs/knp-menu": "2.0.*@dev"
 ```
@@ -28,7 +26,7 @@ kterým povolíme instalaci balíčku, který není ve stabilní verzi.
 
 Pokud si přejeme povolit vývojové verze u všech balíků (nedoporučuji), lze nastavi v `composer.json` minimální stabilitu na `dev` a vypustit závislost na KnpMenu. Soubor `composer.json` by poté vypadal asi takto:
 
-```json
+```
 {
     ...
     "require": {
@@ -74,13 +72,130 @@ Tato registrace vytvoří několik služeb:
 
 ### Konfigurace
 
-Konfigurace umožňuje nastavení výchozího rendereru. V `config.neon` můžeme použít (pokud jmse registroval rozšíření s původním názvem):
+Konfigurace umožňuje nastavení výchozího rendereru. V `config.neon` můžeme použít (pokud jsme registroval rozšíření s původním názvem):
 
-```json
+```
 smfMenu:
     defaultRenderer: bootstrapNav # jaký použit výchozí renderer, výchozí je vždy list
 ```
 
-<a name="prvni-menu"></a>
+<a name="tvorba"></a>
 
 ## Tvoříme první menu
+
+Vzhledem k mocnému DI mechanismu lze menu tvořit několika způsoby.
+
+### Pomocí továrny
+
+Standardní a nejjednodušší způsob, jak vytvořit menu je pomocí továrny, kterou si necháme vložit (vstříknout) do presenteru:
+
+```php
+
+use Smf\Menu;
+
+final class FooPresenter extends BasePresenter
+{
+    /** @var Menu\Control\Factory */
+    private $menuFactory;
+
+    public function injectMenuFactory(Menu\Control\Factory $factory)
+    {
+        $this->menuFactory = $factory;
+    }
+
+    public function createComponentMenu()
+    {
+        $menu = $this->menuFactory->createControl();
+        $root = $menu->getRoot();
+
+        $root->addChild('products', array(
+            'label' => 'Produkty',
+            'link'  => 'BarPresenter:default'
+        ));
+
+        // plnění dalsích položek menu
+
+        return $menu;
+    }
+
+}
+```
+
+Pro vykreslení menu se používá obligátní makro `control` (pro více informací vizte sekci [Jak menu vykreslit](#vykreslovani)) kdekoliv v Latte šabloně:
+
+```html
+<div class="navbar">
+    {control menu}
+</div>
+```
+
+### Menu jako služba
+
+Je možné, že pro tvorbu svého menu budete potřebovat různé závislosti a v tu chvíli je rozumné vytvořit menu jako službu.
+
+Nejprve začneme s vytvořím vlastní menu `control`:
+
+```php
+
+namespace Foo\Bar;
+
+class MyMenu extends \Smf\Menu\Control\MenuControl
+{
+    private $connection;
+
+    public function __construct(Nette\Database\Connection $connection,
+        Knp\Menu\FactoryInterface $factory, Knp\Menu\Renderer\IManager $manager)
+    {
+        parent::__construct($factory, $manager);
+        $this->connection = $connection;
+    }
+
+    public function getRoot()
+    {
+        // ... načtení menu z DB
+    }
+}
+```
+
+Poté je potřeba zavést službu do `config.neon`:
+
+```
+services:
+    connection:
+        # ...
+    myMenu:
+        class: Foo\Bar\MyMenu(%connection%, %smfMenu.factory%, %smfMenu.rendererManager%)
+        # ...
+```
+
+Dále již jen získat službu v presenteru pro metodu vytvářející komponentu:
+
+```php
+
+use Smf\Menu;
+
+final class FooPresenter extends BasePresenter
+{
+    /** @var Foo\Bar\MyMenu */
+    private $myMenu;
+
+    public function injectMyMenu(Foo\Bar\MyMenu $myMenu)
+    {
+        $this->myMenu = $myMenu;
+    }
+
+    public function createComponentMyMenu()
+    {
+        return $this->myMenu;
+    }
+
+}
+```
+
+A nakonec menu menu vykreslit (pro více informací vizte sekci [Jak menu vykreslit](#vykreslovani)):
+
+```html
+<div class="navbar">
+    {control myMenu}
+</div>
+```
