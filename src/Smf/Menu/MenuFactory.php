@@ -23,6 +23,9 @@ class MenuFactory extends BaseMenuFactory
         $extraOptions = array('link', 'icon');
         foreach ($extraOptions as $option) {
             if (isset($options[$option])) {
+                if ($option == 'link') {
+                    $options[$option] = (array) $options[$option];
+                }
                 $item->setExtra($option, $options[$option]);
             }
         }

@@ -41,7 +41,8 @@ class PresenterVoter implements IVoter
     public function matchItem(ItemInterface $item)
     {
         if ($item->getExtra('link', false) && $this->parentControl) {
-            return $this->parentControl->getPresenter()->isLinkCurrent($item->getExtra('link'));
+            $presenter = $this->parentControl->getPresenter(true);
+            return call_user_func_array(array($presenter, 'isLinkCurrent'), $item->getExtra('link'));
         }
         return null;
     }

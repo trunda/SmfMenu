@@ -178,7 +178,8 @@ class ListRenderer extends Renderer implements IRenderer
         if ($item->getUri()) {
             return $item->getUri();
         } elseif ($item->getExtra('link', false) && $this->parentControl) {
-            return $this->parentControl->getPresenter(true)->link($item->getExtra('link'));
+            $presenter = $this->parentControl->getPresenter(true);
+            return call_user_func_array(array($presenter, 'link'), $item->getExtra('link'));
         }
         return null;
     }
