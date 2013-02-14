@@ -6,6 +6,7 @@ use Nette\Config\Compiler;
 use Nette\Config\CompilerExtension;
 use Nette\Config\Configurator;
 use Nette\DI\Container;
+use Smf\Menu\Control\Factory;
 use Smf\Menu\Control\MenuControl;
 
 /**
@@ -13,9 +14,13 @@ use Smf\Menu\Control\MenuControl;
  */
 class Extension extends CompilerExtension {
 
-    const DEFAULT_EXTENSION_NAME = 'menu',
+    const DEFAULT_EXTENSION_NAME = 'smfMenu',
             RENDERER_TAG_NAME = 'menuRenderer',
             VOTER_TAG_NAME = 'menuVoter';
+
+    public $defaults = array(
+        'defaultRenderer' => 'list',
+    );
 
     /**
      * Configuration - container building
@@ -23,18 +28,17 @@ class Extension extends CompilerExtension {
     public function loadConfiguration()
     {
         $builder = $this->getContainerBuilder();
+        $config = $this->getConfig($this->defaults);
 
         // Create instance of menufactory
         $menuFactory = $builder->addDefinition($this->prefix('factory'))
             ->setClass('Smf\Menu\MenuFactory');
 
         // Create a factory for control
-        $builder->addDefinition($this->prefix('control'))
-            ->setClass('Smf\Menu\Control\MenuControl', array($menuFactory))
-            ->setParameters(array('defaultRenderer' => null))
-            ->addSetup('setDefaultRenderer', array('%defaultRenderer%'))
-            ->addSetup(get_called_class() . '::setupRenderers', array('@self', '@container'))
-            ->setShared(false);
+        $builder->addDefinition($this->prefix('controlFactory'))
+            ->setClass('Smf\Menu\Control\Factory', array($menuFactory))
+            ->addSetup('setDefaultRenderer', array($config['defaultRenderer']))
+            ->addSetup(get_called_class() . '::setupRenderers', array('@self', '@container'));
 
         // Matcher
         $matcher = $builder->addDefinition($this->prefix('matcher'))
@@ -64,10 +68,10 @@ class Extension extends CompilerExtension {
      * @param $menuControl  MenuControl
      * @param $container    \Nette\DI\Container
      */
-    public static function setupRenderers(MenuControl $menuControl, Container $container)
+    public static function setupRenderers(Factory $menuControl, Container $container)
     {
         foreach ($container->findByTag(static::RENDERER_TAG_NAME) as $name => $value) {
-            $menuControl->registerRenderer($value, $container->getService($name));
+            $menuControl->addRenderer($value, $container->getService($name));
         }
     }
 
