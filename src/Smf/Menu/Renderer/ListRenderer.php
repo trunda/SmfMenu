@@ -40,7 +40,6 @@ class ListRenderer implements RendererInterface
             'ancestorClass' => 'current_ancestor',
             'firstClass' => 'first',
             'lastClass' => 'last',
-            'compressed' => false,
             'allow_safe_labels' => false,
             'clear_matcher' => true,
         ), $defaultOptions);
@@ -67,6 +66,7 @@ class ListRenderer implements RendererInterface
     public function render(ItemInterface $item, array $options = array())
     {
         $options = array_merge($this->defaultOptions, $options);
+        $options['rootLevel'] = $item->getLevel();
         return (string) $this->getMenu($item, $options);
     }
 
@@ -192,7 +192,9 @@ class ListRenderer implements RendererInterface
         if (!$this->getUri($item, $options) && !$item->getLabel()) {
             return '';
         }
-        if ($this->getUri($item, $options) && (!$item->isCurrent() || $options['currentAsLink'])) {
+        if ($this->getUri($item, $options)
+            && (!$item->isCurrent() || $options['currentAsLink'])
+            && (!$this->matcher->isCurrent($item) || $options['currentAsLink'])) {
             return $this->getLinkElement($item, $options);
         } else {
             return $this->getSpanElement($item, $options);
@@ -267,5 +269,10 @@ class ListRenderer implements RendererInterface
         if (method_exists($this->matcher, 'setParentControl')) {
             $this->matcher->setParentControl($parentControl);
         }
+    }
+
+    protected function getRealLevel(ItemInterface $item, array $options)
+    {
+        return $item->getLevel() - $options['rootLevel'];
     }
 }

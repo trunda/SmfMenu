@@ -43,7 +43,11 @@ class BootstrapNavRenderer extends ListRenderer
     protected function getMenu(ItemInterface $item, array $options = array())
     {
         $menu = parent::getMenu($item, $options);
-        $menu->class[] = 'nav';
+        if (!empty($menu)) {
+            $menu->class = (array) $menu->class;
+            array_unshift($menu->class, 'nav');
+        }
+
         return $menu;
     }
 
@@ -57,7 +61,11 @@ class BootstrapNavRenderer extends ListRenderer
     {
         $list = parent::getList($item, $attributes, $options);
         // Dropdown
-        if ($item->getLevel() >= 1 && $item->hasChildren() && $item->getDisplayChildren()) {
+        if (!empty($list)
+            && $this->getRealLevel($item, $options) >= 1
+            && $item->hasChildren()
+            && $item->getDisplayChildren()) {
+            $list->class = (array) $list->class;
             $list->class[] = 'dropdown-menu';
         }
         return $list;
@@ -71,8 +79,9 @@ class BootstrapNavRenderer extends ListRenderer
     protected function getItem(ItemInterface $item, array $options)
     {
         $result = parent::getItem($item, $options);
-        if ($item->hasChildren() && $item->getDisplayChildren()) {
-            if ($item->getLevel() === 1) {
+        if ($options['depth'] !== 0 && $item->hasChildren() && $item->getDisplayChildren()) {
+            $result->class = (array) $result->class;
+            if ($this->getRealLevel($item, $options) === 1) {
                 $result->class[] = 'dropdown';
             } else {
                 $result->class[] = 'dropdown-submenu';
@@ -91,10 +100,13 @@ class BootstrapNavRenderer extends ListRenderer
         $link = parent::getLink($item, $options);
 
         // Carret
-        if ($item->getLevel() === 1 && $item->hasChildren() && $item->getDisplayChildren()) {
+        if ($options['depth'] !== 0
+            && $this->getRealLevel($item, $options) === 1
+            && $item->hasChildren()
+            && $item->getDisplayChildren()) {
             $link->add('&nbsp;')
                 ->add(Html::el('b', array('class' => 'caret')));
-
+            $link->class = (array) $link->class;
             $link->class[] = 'dropdown-toggle';
             $link->data['toggle'] = 'dropdown';
         }

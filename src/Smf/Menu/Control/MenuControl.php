@@ -41,7 +41,7 @@ class MenuControl extends Control
      * Registers renderer under given name. It is possible to register class name or instance of
      * RendererInterface class
      *
-     * @param $name Name of the renderer
+     * @param $name string Name of the renderer
      * @param $renderer string|RendererInterface renderer class or instance
      * @throws InvalidArgumentException
      */
@@ -113,13 +113,31 @@ class MenuControl extends Control
 
     public function renderMenu($renderer, array $options = array())
     {
-        echo $this->getRenderer($renderer)->render($this->getRoot(), $options);
+        $menu = $this->getRoot();
+        if (isset($options['path'])) {
+            $menu = $this->getMenuByPath($options['path']);
+            unset($options['path']);
+        }
+        echo $this->getRenderer($renderer)->render($menu, $options);
+    }
+
+    protected function getMenuByPath($path)
+    {
+        $path = explode('-', $path);
+        $menu = $this->getRoot();
+        foreach ($path as $name) {
+            $menu = $menu->getChild($name);
+            if ($menu === null) {
+                throw new InvalidArgumentException("There is no menu with name '$name'");
+            }
+        }
+        return $menu;
     }
 
     /**
      * Renders menu with default renderer
      */
-    public function render()
+    public function render(array $options = array())
     {
         if (empty($this->renderers)) {
             throw new InvalidStateException("There is no renderer.");
@@ -127,13 +145,19 @@ class MenuControl extends Control
         // Get default or first renderer
         reset($this->renderers);
         $name = $this->defaultRenderer ?: (key($this->renderers));
-        $this->renderMenu($name);
+        $this->renderMenu($name, $options);
     }
 
     public function __call($name, $args)
     {
         if (strpos($name, 'render') === 0) {
-            return $this->renderMenu(lcfirst(substr($name, 6)));
+            $options = array();
+            if (count($args) === 1 && is_array($args[0])) {
+                $options = $args[0];
+            } elseif (count($args) !== 0) {
+                throw new InvalidArgumentException('Render method expects one optional parameter and it should be an array.');
+            }
+            return $this->renderMenu(lcfirst(substr($name, 6)), $options);
         }
     }
 

@@ -25,11 +25,11 @@ class Extension extends CompilerExtension {
         $builder = $this->getContainerBuilder();
 
         // Create instance of menufactory
-        $menuFactory = $builder->addDefinition($this->prefix('menuFactory'))
+        $menuFactory = $builder->addDefinition($this->prefix('factory'))
             ->setClass('Smf\Menu\MenuFactory');
 
         // Create a factory for control
-        $builder->addDefinition($this->prefix('menuControl'))
+        $builder->addDefinition($this->prefix('control'))
             ->setClass('Smf\Menu\Control\MenuControl', array($menuFactory))
             ->setParameters(array('defaultRenderer' => null))
             ->addSetup('setDefaultRenderer', array('%defaultRenderer%'))
