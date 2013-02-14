@@ -10,6 +10,7 @@ use Nette\Application\UI\Control;
 use Nette\InvalidArgumentException;
 use Nette\InvalidStateException;
 use Nette\Reflection\ClassType;
+use Smf\Menu\Renderer\IManager;
 
 class MenuControl extends Control
 {
@@ -19,8 +20,8 @@ class MenuControl extends Control
     /** @var ItemInterface */
     private $root;
 
-    /** @var string */
-    private $defaultRenderer;
+    /** @var IManager */
+    private $rendererManager;
 
     /**
      * List of registered renderers
@@ -28,74 +29,10 @@ class MenuControl extends Control
      */
     private $renderers = array();
 
-    function __construct(FactoryInterface $menuFactory, array $renderers = array())
+    function __construct(FactoryInterface $menuFactory, IManager $rendererManager)
     {
         $this->menuFactory = $menuFactory;
-        foreach ($renderers as $name => $renderer) {
-            $this->registerRenderer($name, $renderer);
-        }
-    }
-
-
-    /**
-     * Registers renderer under given name. It is possible to register class name or instance of
-     * RendererInterface class
-     *
-     * @param $name string Name of the renderer
-     * @param $renderer string|RendererInterface renderer class or instance
-     * @throws InvalidArgumentException
-     */
-    public function registerRenderer($name, $renderer, $rewrite = false)
-    {
-        if (isset($this->renderers[$name]) && !$rewrite) {
-            throw new InvalidArgumentException("Renderer with name '$name' is already registered.");
-        }
-        unset($this->renderers[$name]);
-        // Is class? Exists?
-        if (is_string($renderer) && !class_exists($renderer)) {
-            throw new InvalidArgumentException("Renderer class '$renderer' doesn't exist.");
-        } elseif (method_exists($renderer, 'setParentControl')) {
-            $renderer->setParentControl($this);
-        }
-
-        $this->renderers[$name] = $renderer;
-    }
-
-    /**
-     * Returns instace of renderer by given name
-     *
-     * @param $name Name of the renderer
-     * @return RendererInterface
-     * @throws InvalidArgumentException
-     */
-    public final function getRenderer($name)
-    {
-        if (!isset($this->renderers[$name])) {
-            throw new InvalidArgumentException("Renderer with name '$name' doesn't exist.");
-        }
-        if (is_string($this->renderers[$name])) {
-            $renderer = new $this->renderers[$name]();
-            $reflection = ClassType::from($renderer);
-            if (!$reflection->isSubclassOf('Knp\Menu\Renderer\RendererInterface')) {
-                throw new InvalidArgumentException("Renderer class '{$this->renderers[$name]}' is not subclass of Knp\\Menu\\Renderer\\RendererInterface");
-            }
-            $this->registerRenderer($name, $renderer, true);
-        }
-        return $this->renderers[$name];
-    }
-
-    /**
-     * Removes renderer by its name
-     *
-     * @param $name Name of the renderer
-     * @throws InvalidArgumentException
-     */
-    public function removeRenderer($name)
-    {
-        if (!isset($this->renderers[$name])) {
-            throw new InvalidArgumentException("There is not registered renderer under the '$name name");
-        }
-        unset($this->renderers[$name]);
+        $this->rendererManager = $rendererManager;
     }
 
     /**
@@ -118,7 +55,14 @@ class MenuControl extends Control
             $menu = $this->getMenuByPath($options['path']);
             unset($options['path']);
         }
-        echo $this->getRenderer($renderer)->render($menu, $options);
+
+        $renderer = $this->rendererManager->getRenderer($renderer);
+
+        $renderer->setParentControl($this);
+        $result = $renderer->render($menu, $options);
+        $renderer->setParentControl(null);
+
+        echo $result;
     }
 
     protected function getMenuByPath($path)
@@ -139,13 +83,7 @@ class MenuControl extends Control
      */
     public function render(array $options = array())
     {
-        if (empty($this->renderers)) {
-            throw new InvalidStateException("There is no renderer.");
-        }
-        // Get default or first renderer
-        reset($this->renderers);
-        $name = $this->defaultRenderer ?: (key($this->renderers));
-        $this->renderMenu($name, $options);
+        $this->renderMenu(null, $options);
     }
 
     public function __call($name, $args)
@@ -161,12 +99,4 @@ class MenuControl extends Control
         }
     }
 
-    /**
-     * Sets the default renderer
-     * @param $name
-     */
-    public function setDefaultRenderer($name)
-    {
-        $this->defaultRenderer = $name;
-    }
 }

@@ -12,12 +12,13 @@ namespace Smf\Menu\Renderer;
 
 use Knp\Menu\ItemInterface;
 use Knp\Menu\Matcher\MatcherInterface;
-use Knp\Menu\Renderer\RendererInterface;
+use Knp\Menu\Renderer\Renderer;
 use Nette\Application\UI\Control;
 use Nette\Utils\Html;
 use Nette\Utils\Strings;
+use Smf\Menu\Matcher\IMatcher;
 
-class ListRenderer implements RendererInterface
+class ListRenderer extends Renderer implements IRenderer
 {
     /** @var \Smf\Menu\Renderer\MatcherInterface */
     protected $matcher;
@@ -27,10 +28,10 @@ class ListRenderer implements RendererInterface
     protected $parentControl;
 
     /**
-     * @param MatcherInterface $matcher
+     * @param IMatcher $matcher
      * @param array            $defaultOptions
      */
-    public function __construct(MatcherInterface $matcher, array $defaultOptions = array())
+    public function __construct(IMatcher $matcher, array $defaultOptions = array())
     {
         $this->matcher = $matcher;
         $this->defaultOptions = array_merge(array(
@@ -237,38 +238,15 @@ class ListRenderer implements RendererInterface
         return $this->escape($item->getLabel());
     }
 
-    /**
-     * Escapes an HTML value
-     *
-     * @param string $value
-     * @return string
-     */
-    protected function escape($value)
-    {
-        return $this->fixDoubleEscape(htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'utf-8'));
-    }
-
-    /**
-     * Fixes double escaped strings.
-     *
-     * @param string $escaped string to fix
-     * @return string A single escaped string
-     */
-    protected function fixDoubleEscape($escaped)
-    {
-        return preg_replace('/&amp;([a-z]+|(#\d+)|(#x[\da-f]+));/i', '&$1;', $escaped);
-    }
 
     /**
      * Sets the parent control - this is important for link generation
      * @param Control $parentControl
      */
-    public function setParentControl(Control $parentControl)
+    public function setParentControl(Control $parentControl = null)
     {
         $this->parentControl = $parentControl;
-        if (method_exists($this->matcher, 'setParentControl')) {
-            $this->matcher->setParentControl($parentControl);
-        }
+        $this->matcher->setParentControl($parentControl);
     }
 
     protected function getRealLevel(ItemInterface $item, array $options)

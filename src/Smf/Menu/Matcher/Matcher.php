@@ -2,11 +2,10 @@
 namespace Smf\Menu\Matcher;
 
 use Knp\Menu\ItemInterface;
-use Knp\Menu\Matcher\MatcherInterface;
 use Knp\Menu\Matcher\Voter\VoterInterface;
 use Nette\Application\UI\Control;
 
-class Matcher implements MatcherInterface
+class Matcher implements IMatcher
 {
     /** @var Control */
     protected $parentControl;
@@ -28,7 +27,7 @@ class Matcher implements MatcherInterface
      *
      * @param VoterInterface $voter
      */
-    public function addVoter(VoterInterface $voter)
+    public function addVoter(Voter\IVoter $voter)
     {
         $this->voters[] = $voter;
     }
@@ -81,13 +80,11 @@ class Matcher implements MatcherInterface
     /**
      * @param Control $parentControl
      */
-    public function setParentControl(Control $parentControl)
+    public function setParentControl(Control $parentControl = null)
     {
         $this->parentControl = $parentControl;
         foreach ($this->voters as $voter) {
-            if (method_exists($voter, 'setParentControl')) {
-                $voter->setParentControl($parentControl);
-            }
+            $voter->setParentControl($parentControl);
         }
     }
 

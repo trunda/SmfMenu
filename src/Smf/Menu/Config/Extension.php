@@ -6,8 +6,7 @@ use Nette\Config\Compiler;
 use Nette\Config\CompilerExtension;
 use Nette\Config\Configurator;
 use Nette\DI\Container;
-use Smf\Menu\Control\Factory;
-use Smf\Menu\Control\MenuControl;
+use Smf\Menu\Renderer\IManager;
 
 /**
  * Menu extension
@@ -34,11 +33,15 @@ class Extension extends CompilerExtension {
         $menuFactory = $builder->addDefinition($this->prefix('factory'))
             ->setClass('Smf\Menu\MenuFactory');
 
+        // Create renderers manager
+        $rendererManager = $builder->addDefinition($this->prefix('rendererManager'))
+            ->setClass('Smf\Menu\Renderer\Manager')
+            ->addSetup(get_called_class() . '::setupRenderers', array('@self', '@container'))
+            ->addSetup('setDefaultRenderer', array($config['defaultRenderer']));;
+
         // Create a factory for control
         $builder->addDefinition($this->prefix('controlFactory'))
-            ->setClass('Smf\Menu\Control\Factory', array($menuFactory))
-            ->addSetup('setDefaultRenderer', array($config['defaultRenderer']))
-            ->addSetup(get_called_class() . '::setupRenderers', array('@self', '@container'));
+            ->setClass('Smf\Menu\Control\Factory', array($menuFactory, $rendererManager));
 
         // Matcher
         $matcher = $builder->addDefinition($this->prefix('matcher'))
@@ -65,19 +68,19 @@ class Extension extends CompilerExtension {
     }
 
     /**
-     * @param $menuControl  MenuControl
-     * @param $container    \Nette\DI\Container
+     * @param $manager IManager
+     * @param $container Container
      */
-    public static function setupRenderers(Factory $menuControl, Container $container)
+    public static function setupRenderers(IManager $manager, Container $container)
     {
         foreach ($container->findByTag(static::RENDERER_TAG_NAME) as $name => $value) {
-            $menuControl->addRenderer($value, $container->getService($name));
+            $manager->addRenderer($value, $container->getService($name));
         }
     }
 
     /**
-     * @param mixed
-     * @param \Nette\DI\Container
+     * @param mixed $voterConsumer
+     * @param Container $container
      */
     public static function setupVoters($voterConsumer, Container $container)
     {
@@ -89,10 +92,10 @@ class Extension extends CompilerExtension {
     /**
      * Register extension to compiler.
      *
-     * @param \Nette\Config\Configurator
-     * @param string
+     * @param Configurator $configurator
+     * @param string $name
      */
-    public static function register(\Nette\Config\Configurator $configurator, $name = self::DEFAULT_EXTENSION_NAME)
+    public static function register(Configurator $configurator, $name = self::DEFAULT_EXTENSION_NAME)
     {
         $class = get_called_class();
         $configurator->onCompile[] = function (Configurator $configurator, Compiler $compiler) use ($class, $name) {
