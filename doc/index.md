@@ -281,26 +281,35 @@ Dále je možné předat do procesu renderování několik nastavení ve formě 
 Nastavení jsou následující (a jejich výchozí hodnoty pro `ListRenderer`):
 
 *   `depth => null`
+
     Jak hluboko se má menu vykreslit (`null` - celé menu, `1` - pouze první úroveň, `2` - první a druhá úroveň)
 *   `path => null`
+
     Pomocí tohoto nastavení lze vykreslit pouze určitou část menu (např. `product-items` vykreslí pouze potomky z položky `items`, která náleŹí rodiči `product`)
 *   `currentAsLink => true`
+
     Má být aktivní položko vykreslována jako odkaz `<a>` (`true`) nebo jako `<span>` (`false`)
 *   `currentClass => 'current'`
+
     CSS třída použitá pro aktivní položku (v `ListRendereru` se umisťuje na přidružené `<li>`)
 *   `ancestorClass => 'current_ancestor'`
+
     CSS třída použitá pro rodiče aktivní položky (v `ListRendereru` se umisťuje na přidružené `<li>`)
 *   `firstClass => 'first'`
+
     CSS třída pro první položku v dané úrovní (v `ListRendereru` se umisťuje na přidružené `<li>`)
 *   `lastClass => 'last'`
+
     CSS třída pro poslední položku v dané úrovní (v `ListRendereru` se umisťuje na přidružené `<li>`)
 *   `allow_safe_labels => false`
+
     Informace zdali se mají (`false`) či nemají (`true`) escapovat titulky menu. Tuto vlastnost je možné nastavit i konkrétní položce:
     ```php
         // $item je instance Knp\Menu\ItemInterface
         $item->addExtra('safe_label', true);
     ```
 *   `clear_matcher => true`
+
     Určuje, zda se má po vykreslení zavolat `matcher->clear();`. Většinou slouží k pročištění cache.
 
 
