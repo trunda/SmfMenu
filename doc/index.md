@@ -77,7 +77,7 @@ Konfigurace umožňuje pouze nastavení výchozího rendereru. V `config.neon` m
 
 ```
 smfMenu:
-    defaultRenderer: bootstrapNav # jaký použit výchozí renderer, výchozí je vždy list
+    defaultRenderer: bootstrapNav # jaký použít výchozí renderer (úplně výchozí je list)
 ```
 
 <a name="tvorba"></a>
