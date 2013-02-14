@@ -285,7 +285,7 @@ Nastavení jsou následující (a jejich výchozí hodnoty pro `ListRenderer`):
     Jak hluboko se má menu vykreslit (`null` - celé menu, `1` - pouze první úroveň, `2` - první a druhá úroveň)
 *   `path => null`
 
-    Pomocí tohoto nastavení lze vykreslit pouze určitou část menu (např. `product-items` vykreslí pouze potomky z položky `items`, která náleŹí rodiči `product`)
+    Pomocí tohoto nastavení lze vykreslit pouze určitou část menu (např. `product-items` vykreslí pouze potomky z položky `items`, která náleží rodiči `product`)
 *   `currentAsLink => true`
 
     Má být aktivní položko vykreslována jako odkaz `<a>` (`true`) nebo jako `<span>` (`false`)
