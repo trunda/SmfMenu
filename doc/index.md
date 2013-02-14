@@ -48,7 +48,7 @@ Registrace do Nette se provádí zaregistrovaním rožšíření do konfiguráto
 ```php
 Smf\Menu\Config\Extension::register($configurator);
 
-// ... někde pod tímto řádkem je $container = $configurator->createContainer();
+// ... někde pod tímto řádkem se volá $configurator->createContainer();
 ```
 
 Tato registrace vytvoří několik služeb:
@@ -61,9 +61,26 @@ Tato registrace vytvoří několik služeb:
 
     Služba je slouží pro výběr aktivní položky pomocí `Voter`ů
 
-3.  Instance všech výchozí rendererů, ty jsou v tomto okamžiku 2.
+3.  Instance všech výchozí rendererů, ty jsou v tomto okamžiku dva.
 
     ```php
     Smf\Menu\Renderer\ListRenderer
     Smf\Menu\Renderer\BootstrapNavRenderer
     ```
+
+4.  Instance továrny pro menu control `Smf\Menu\Control\Factory`
+
+    Slouží k snadnému vytváření menu control a lze ji v presenteru získat pomocí metody `inject...`.
+
+### Konfigurace
+
+Konfigurace umožňuje nastavení výchozího rendereru. V `config.neon` můžeme použít (pokud jmse registroval rozšíření s původním názvem):
+
+```json
+smfMenu:
+    defaultRenderer: bootstrapNav # jaký použit výchozí renderer, výchozí je vždy list
+```
+
+<a name="prvni-menu"></a>
+
+## Tvoříme první menu
