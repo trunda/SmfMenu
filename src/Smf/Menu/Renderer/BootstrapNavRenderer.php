@@ -16,19 +16,19 @@ class BootstrapNavRenderer extends ListRenderer
      * Overwriting some options - classes, etc.
      * @param array $defaultOptions
      */
-	protected function setDefaults(array $defaultOptions = array())
-	{
-		$defaultOptions = array_merge(array(
-			'depth' => 1,
-			'ancestorCurrencyDepth' => null,
-			'currentClass' => 'active',
-			'ancestorClass' => 'active',
-			'firstClass' => null,
-			'lastClass' => null
-			), $defaultOptions);
+    protected function setDefaults(array $defaultOptions = array())
+    {
+        $defaultOptions = array_merge(array(
+            'depth' => null,
+            'ancestorCurrencyDepth' => null,
+            'currentClass' => 'active',
+            'ancestorClass' => 'active',
+            'firstClass' => null,
+            'lastClass' => null
+        ), $defaultOptions);
 
-		parent::setDefaults($defaultOptions);
-	}
+        parent::setDefaults($defaultOptions);
+    }
 
     /**
      * @param \Knp\Menu\ItemInterface $item
@@ -42,7 +42,7 @@ class BootstrapNavRenderer extends ListRenderer
             $menu->class = (array) $menu->class;
             array_unshift($menu->class, 'nav');
         }
-		
+
         return $menu;
     }
 

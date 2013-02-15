@@ -29,22 +29,19 @@ class ListRenderer extends Renderer implements IRenderer
     public function __construct(IMatcher $matcher, array $defaultOptions = array(), $charset = null)
     {
         $this->matcher = $matcher;
-		$this->setDefaults($defaultOptions);
+        $this->setDefaults($defaultOptions);
 
-		parent::__construct($charset);
+        parent::__construct($charset);
     }
 
-	/**
-	 * @param array $defaultOptions
-	 */
-	protected function setDefaults(array $defaultOptions = array())
-	{
+    /**
+     * @param array $defaultOptions
+     */
+    protected function setDefaults(array $defaultOptions = array())
+    {
         $this->defaultOptions = array_merge(array(
-			// rendering depth
             'depth' => null,
-			// ancestor currency check depth
-			// to set it current, when it's child is active, but not displayed)
-			'ancestorCurrencyDepth' => null,
+            'ancestorCurrencyDepth' => null,
             'currentAsLink' => true,
             'currentClass' => 'current',
             'ancestorClass' => 'current_ancestor',
@@ -122,7 +119,7 @@ class ListRenderer extends Renderer implements IRenderer
     protected function getChildren(ItemInterface $item, array $options)
     {
         if (null !== $options['depth']) {
-            $options['depth'] = max(0, $options['depth'] - 1);
+            $options['depth'] = $options['depth'] - 1;
         }
 
         if (null !== $options['ancestorCurrencyDepth']) {
