@@ -63,10 +63,17 @@ Extension adds factory for the menu control, so in presenter is usable like this
 ```php
 abstract class BasePresenter extends Presenter
 {
-    //...
+    /** @var Menu\Control\Factory */
+    private $menuFactory;
+
+    public function injectMenuFactory(Menu\Control\Factory $factory)
+    {
+        $this->menuFactory = $factory;
+    }
+
     protected function createComponentMenu()
     {
-        $menu = $this->context->menu->createMenuControl();
+        $menu = $this->menuFactory->createControl();
         $root = $menu->getRoot();
 
         $root->addChild('catalog', array(
