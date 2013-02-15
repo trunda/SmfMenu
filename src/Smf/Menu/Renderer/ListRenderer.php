@@ -10,6 +10,9 @@ use Nette\Utils\Html;
 use Nette\Utils\Strings;
 use Smf\Menu\Matcher\IMatcher;
 
+/**
+ * Renders basic <UL><LI> list menu.
+ */
 class ListRenderer extends Renderer implements IRenderer
 {
     /** @var IMatcher */
@@ -23,11 +26,25 @@ class ListRenderer extends Renderer implements IRenderer
      * @param IMatcher $matcher
      * @param array $defaultOptions
      */
-    public function __construct(IMatcher $matcher, array $defaultOptions = array())
+    public function __construct(IMatcher $matcher, array $defaultOptions = array(), $charset = null)
     {
         $this->matcher = $matcher;
+		$this->setDefaults($defaultOptions);
+
+		parent::__construct($charset);
+    }
+
+	/**
+	 * @param array $defaultOptions
+	 */
+	protected function setDefaults(array $defaultOptions = array())
+	{
         $this->defaultOptions = array_merge(array(
+			// rendering depth
             'depth' => null,
+			// ancestor currency check depth
+			// to set it current, when it's child is active, but not displayed)
+			'ancestorCurrencyDepth' => null,
             'currentAsLink' => true,
             'currentClass' => 'current',
             'ancestorClass' => 'current_ancestor',
@@ -37,6 +54,7 @@ class ListRenderer extends Renderer implements IRenderer
             'clear_matcher' => true,
         ), $defaultOptions);
     }
+
     /**
      * Renders menu tree.
      *
@@ -60,7 +78,7 @@ class ListRenderer extends Renderer implements IRenderer
     {
         $options = array_merge($this->defaultOptions, $options);
         $options['rootLevel'] = $item->getLevel();
-        return (string) $this->getMenu($item, $options);
+        return $this->getMenu($item, $options) ?: '';
     }
 
     /**
@@ -104,7 +122,11 @@ class ListRenderer extends Renderer implements IRenderer
     protected function getChildren(ItemInterface $item, array $options)
     {
         if (null !== $options['depth']) {
-            $options['depth'] = $options['depth'] - 1;
+            $options['depth'] = max(0, $options['depth'] - 1);
+        }
+
+        if (null !== $options['ancestorCurrencyDepth']) {
+            $options['ancestorCurrencyDepth'] = max(0, $options['ancestorCurrencyDepth'] - 1);
         }
 
         $items = array();
@@ -132,7 +154,7 @@ class ListRenderer extends Renderer implements IRenderer
 
         if ($this->matcher->isCurrent($item)) {
             $class[] = $options['currentClass'];
-        } elseif ($this->matcher->isAncestor($item, $options['depth'])) {
+        } elseif ($this->matcher->isAncestor($item, $options['ancestorCurrencyDepth'])) {
             $class[] = $options['ancestorClass'];
         }
 
