@@ -8,25 +8,27 @@ use Knp\Menu\Matcher\MatcherInterface;
 use Nette\Utils\Html;
 
 /**
- * Generates navigation by adding some classes, data attributes atc.
+ * Generates Bootstrap style navigation by adding some classes, data attributes etc.
  */
 class BootstrapNavRenderer extends ListRenderer
 {
     /**
      * Overwriting some options - classes, etc.
-     * @param \Knp\Menu\Matcher\MatcherInterface $matcher
      * @param array $defaultOptions
      */
-    public function __construct(MatcherInterface $matcher, array $defaultOptions = array())
-    {
-        $defaultOptions = array_merge(array(
-            'currentClass' => 'active',
-            'ancestorClass' => 'active',
-            'firstClass' => null,
-            'lastClass' => null
-        ), $defaultOptions);
-        parent::__construct($matcher, $defaultOptions);
-    }
+	protected function setDefaults(array $defaultOptions = array())
+	{
+		$defaultOptions = array_merge(array(
+			'depth' => 1,
+			'ancestorCurrencyDepth' => null,
+			'currentClass' => 'active',
+			'ancestorClass' => 'active',
+			'firstClass' => null,
+			'lastClass' => null
+			), $defaultOptions);
+
+		parent::setDefaults($defaultOptions);
+	}
 
     /**
      * @param \Knp\Menu\ItemInterface $item
@@ -36,11 +38,11 @@ class BootstrapNavRenderer extends ListRenderer
     protected function getMenu(ItemInterface $item, array $options = array())
     {
         $menu = parent::getMenu($item, $options);
-        if (!is_null($menu)) {
+        if (is_object($menu)) {
             $menu->class = (array) $menu->class;
             array_unshift($menu->class, 'nav');
         }
-
+		
         return $menu;
     }
 
