@@ -42,7 +42,8 @@ class PresenterVoter implements IVoter
     {
         if ($item->getExtra('link', false) && $this->parentControl) {
             $presenter = $this->parentControl->getPresenter(true);
-            return call_user_func_array(array($presenter, 'isLinkCurrent'), $item->getExtra('link'));
+            $item->setCurrent(call_user_func_array(array($presenter, 'isLinkCurrent'), $item->getExtra('link')));
+            return $item->isCurrent();
         }
         return null;
     }
