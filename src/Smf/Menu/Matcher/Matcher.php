@@ -65,6 +65,7 @@ class Matcher implements IMatcher
         $childDepth = null === $depth ? null : $depth - 1;
         foreach ($item->getChildren() as $child) {
             if ($this->isCurrent($child) || $this->isAncestor($child, $childDepth)) {
+                $item->setCurrent(true);
                 return true;
             }
         }
