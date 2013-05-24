@@ -77,7 +77,8 @@ class BootstrapNavRenderer extends ListRenderer
         if (!is_null($item)
             && $options['depth'] !== 0
             && $item->hasChildren()
-            && $item->getDisplayChildren()) {
+            && $item->getDisplayChildren()
+            && !is_null($result)) {
 
             $result->class = (array) $result->class;
             if ($this->getRealLevel($item, $options) === 1) {
