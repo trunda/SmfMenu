@@ -36,6 +36,16 @@ class MenuControl extends Control
     }
 
     /**
+     * @param ItemInterface $root
+     * @return MenuControl
+     */
+    public function setRoot(ItemInterface $root)
+    {
+        $this->root = $root;
+        return $this;
+    }
+
+    /**
      * Returns root item
      *
      * @return \Knp\Menu\ItemInterface
