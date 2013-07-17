@@ -29,9 +29,14 @@ class Extension extends CompilerExtension {
         $builder = $this->getContainerBuilder();
         $config = $this->getConfig($this->defaults);
 
+        // Create instance of extension
+        $menuFactory = $builder->addDefinition($this->prefix('extension'))
+            ->setClass('Smf\Menu\MenuExtension');
+
         // Create instance of menufactory
         $menuFactory = $builder->addDefinition($this->prefix('factory'))
-            ->setClass('Smf\Menu\MenuFactory');
+            ->addSetup('addExtension', $this->prefix('@extension'))
+            ->setClass('Knp\Menu\MenuFactory');
 
         // Create renderers manager
         $rendererManager = $builder->addDefinition($this->prefix('rendererManager'))
