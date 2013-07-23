@@ -1,17 +1,27 @@
 <?php
 namespace Smf\Menu\Config;
 
+use Nette;
 use Nette\Application\Application;
-use Nette\Config\Compiler;
-use Nette\Config\CompilerExtension;
-use Nette\Config\Configurator;
 use Nette\DI\Container;
 use Smf\Menu\Renderer\IManager;
+
+
+if (!class_exists('Nette\DI\CompilerExtension')) {
+    class_alias('Nette\Config\CompilerExtension', 'Nette\DI\CompilerExtension');
+    class_alias('Nette\Config\Compiler', 'Nette\DI\Compiler');
+    class_alias('Nette\Config\Helpers', 'Nette\DI\Config\Helpers');
+}
+
+if (isset(Nette\Loaders\NetteLoader::getInstance()->renamed['Nette\Configurator']) || !class_exists('Nette\Configurator')) {
+    unset(Nette\Loaders\NetteLoader::getInstance()->renamed['Nette\Configurator']); // fuck you
+    class_alias('Nette\Config\Configurator', 'Nette\Configurator');
+}
 
 /**
  * Menu extension
  */
-class Extension extends CompilerExtension {
+class Extension extends Nette\DI\CompilerExtension {
 
     const DEFAULT_EXTENSION_NAME = 'smfMenu',
             RENDERER_TAG_NAME = 'menuRenderer',
