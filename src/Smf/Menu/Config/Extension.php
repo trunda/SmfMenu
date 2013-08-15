@@ -110,7 +110,7 @@ class Extension extends Nette\DI\CompilerExtension {
      * @param Configurator $configurator
      * @param string $name
      */
-    public static function register(Configurator $configurator, $name = self::DEFAULT_EXTENSION_NAME)
+    public static function register(Nette\Configurator $configurator, $name = self::DEFAULT_EXTENSION_NAME)
     {
         $class = get_called_class();
         $configurator->onCompile[] = function (Configurator $configurator, Compiler $compiler) use ($class, $name) {
