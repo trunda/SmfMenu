@@ -45,7 +45,7 @@ class Extension extends Nette\DI\CompilerExtension {
 
         // Create instance of menufactory
         $menuFactory = $builder->addDefinition($this->prefix('factory'))
-            ->addSetup('addExtension', $this->prefix('@extension'))
+            ->addSetup('addExtension', array($this->prefix('@extension')))
             ->setClass('Knp\Menu\MenuFactory');
 
         // Create renderers manager
