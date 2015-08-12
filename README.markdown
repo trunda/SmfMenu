@@ -2,15 +2,17 @@ SmfMenu is just integration library for KnpMenu.
 
 #Installation
 
-Easiest way to install the addon is via `composer`. Add this to your `composer.json`:
+Easiest way to install the addon is via `composer`:
 
-    "trunda/smf-menu": "1.0.*@dev",
-    "knplabs/knp-menu": "2.0.*@dev"
+```sh
+composer install trunda/smf-menu
+```
 
-and then register the extension by adding this lines to your `bootstrap.php` before container creation:
+and then register the extension in your `config.neon`:
 
-```php
-Smf\Menu\Config\Extension::register($configurator);
+```yaml
+extensions:
+    - Smf\Menu\Config\Extension
 ```
 
 
@@ -125,7 +127,7 @@ You can use them in template
 
 Registration of new renderer is as easy as adding new service to your config with tag `menuRenderer`:
 
-```
+```yaml
 services:
     myRenderer: 
          class: My\Super\Renderer
