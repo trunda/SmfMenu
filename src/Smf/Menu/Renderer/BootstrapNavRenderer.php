@@ -106,8 +106,8 @@ class BootstrapNavRenderer extends ListRenderer
             && $item->hasChildren()
             && $item->getDisplayChildren()) {
 
-            $link->add('&nbsp;')
-                ->add(Html::el('b', array('class' => 'caret')));
+            $link->addHtml('&nbsp;')
+                ->addHtml(Html::el('b', array('class' => 'caret')));
             $link->class = (array) $link->class;
             $link->class[] = 'dropdown-toggle';
             $link->data['toggle'] = 'dropdown';

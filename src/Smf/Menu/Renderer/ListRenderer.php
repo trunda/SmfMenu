@@ -106,7 +106,7 @@ class ListRenderer extends Renderer implements IRenderer
 
         $list = Html::el('ul', $attributes);
         foreach ($this->getChildren($item, $options) as $child) {
-            $list->add($child);
+            $list->addHtml($child);
         }
         return $list;
     }
@@ -171,7 +171,7 @@ class ListRenderer extends Renderer implements IRenderer
         $li = Html::el('li', $attributes);
 
         if (($link = $this->getLink($item, $options)) !== null) {
-            $li->add($link);
+            $li->addHtml($link);
         }
 
         // renders the embedded ul
@@ -182,7 +182,7 @@ class ListRenderer extends Renderer implements IRenderer
         $childrenAttributes['class'] = $childrenClass;
 
         if (($children = $this->getList($item, $childrenAttributes, $options)) !== null) {
-            $li->add($children);
+            $li->addHtml($children);
         }
         return $li;
     }
