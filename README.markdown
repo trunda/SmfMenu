@@ -1,6 +1,6 @@
 SmfMenu is just integration library for KnpMenu.
 
-#Installation
+# Installation
 
 Easiest way to install the addon is via `composer`:
 
