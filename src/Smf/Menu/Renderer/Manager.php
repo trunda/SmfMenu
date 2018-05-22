@@ -3,10 +3,11 @@
 namespace Smf\Menu\Renderer;
 
 use Nette\InvalidArgumentException;
-use Nette\SmartObject;
 
-class Manager extends SmartObject implements IManager
+class Manager implements IManager
 {
+    use Nette\SmartObject;
+
     /** @var array */
     private $renderers = array();
 
