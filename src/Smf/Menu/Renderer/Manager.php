@@ -6,7 +6,7 @@ use Nette\InvalidArgumentException;
 
 class Manager implements IManager
 {
-    use Nette\SmartObject;
+    use \Nette\SmartObject;
 
     /** @var array */
     private $renderers = array();
